@@ -2,7 +2,7 @@
 
 ### Deployment model
 
-![Image](/docs/deployment_model.png)
+![Image](/tyden-inovaci-workshop/docs/deployment_model.png)
 
 **A**:
   - DEV environment
