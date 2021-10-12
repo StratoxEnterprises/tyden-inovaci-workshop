@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "service.name" . }}
+    chart: {{ template "service.chart" . }}
+    buildNumber: "{{ .Values.buildNumber }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "service.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.fluentbit.istioProxy.enabled }}
+        fluentbit.io/parser-istio-proxy: {{ .Values.fluentbit.istioProxy.parser }}
+        {{- end }}
+        fluentbit.io/parser-{{ .Chart.Name }}: {{ .Values.fluentbit.parser }}
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "{{ .Values.service.port }}"
+        prometheus.io/scrape: "{{ .Values.metricsPrometheusEnabled }}"
+        configHash: "{{ .Values.configHash }}"
+      labels:
+        app: {{ template "service.name" . }}
+        release: {{ .Release.Name }}
+        version: {{ .Values.version }}
+    spec:
+      imagePullSecrets:
+        - name: docker-user-registry
+      volumes:
+        {{- $configMapName := .Chart.Name -}}
+        {{ range $key, $val := .Values.configFiles }}
+        - name: {{ $key | replace "." "-" | lower }}
+          configMap:
+            name: {{ $configMapName }}
+            items:
+            - key: {{ $key }}
+              path: {{ $key }}
+        {{- end }}
+        {{- range $path, $bytes := .Files.Glob "flyway/*.sql" }}
+        - name: {{ base $path | replace "." "-"  | replace "__" "-" | lower }}-script
+          configMap:
+            name: {{ $configMapName }}
+            items:
+              - key: {{ base $path }}
+                path: {{ base $path }}
+        {{- end }}
+      initContainers:
+        - name: {{ .Chart.Name }}-migration
+          image: flyway/flyway:7.5.2
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args: ["migrate"]
+          env:
+            {{- range $key, $val := .Values.environmentVariables }}
+            - name: {{ $key }}
+              value: '{{ $val }}'
+            {{- end }}
+          volumeMounts:
+            - name: flyway-conf
+              mountPath: /flyway/conf/flyway.conf
+              subPath: flyway.conf
+            {{- range $path, $bytes := .Files.Glob "flyway/*.sql" }}
+            - name: {{ base $path | replace "." "-"  | replace "__" "-" | lower }}-script
+              mountPath: /flyway/sql/{{ base $path }}
+              subPath: {{ base $path }}
+            {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Chart.Version }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: SERVER_PORT
+              value: '{{ .Values.service.port }}'
+            {{- range $key, $val := .Values.environmentVariables }}
+            - name: {{ $key }}
+              value: '{{ $val }}'
+            {{- end }}
+          volumeMounts:
+            {{- range $key, $val := .Values.configFiles }}
+            - name: {{ $key | replace "." "-" | lower}}
+              mountPath: /codenow/config/{{ $key }}
+              subPath: {{ $key}}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 70
+            periodSeconds: 20
+            successThreshold: 1
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+            failureThreshold: 12
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

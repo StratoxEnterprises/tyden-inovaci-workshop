@@ -1,0 +1,39 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+configHash: "1" # configuration change detection
+appName: omi-my-component
+version: ${project.version}
+domainName: trials.codenow.com
+buildNumber: "${env.BUILD_NUMBER}"
+
+nettyWorkerThreads: 2
+
+image:
+  repository: codenow-trials-docker.jfrog.io/codenow/omi-my-component
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+fluentbit:
+  istioProxy:
+    enabled: true
+    parser: envoy-logging-filter-parser
+  parser: oxus-app-component-json
+
+configFiles: {}
+environmentVariables: {}
+
+metricsPrometheusEnabled: true
+metricsPrometheusStep: PT1M
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

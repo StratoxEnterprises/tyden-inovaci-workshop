@@ -1,0 +1,38 @@
+server:
+  port: ${SERVER_PORT:8080}
+spring:
+  main:
+    banner-mode: off
+  zipkin:
+    enabled: false
+  sleuth:
+    propagation:
+      type: B3
+  kafka:
+    reservation:
+      bootstrap-servers: ${KAFKA_RESERVATION_BOOTSTRAP_SERVERS}
+      consumer:
+        group-id: omi-id
+      topic:
+        new-reservation: new-reservation
+  datasource:
+    url: ${DB_WAREHOUSE_JDBC_URL}
+    username: ${DB_WAREHOUSE_USERNAME}
+    password: ${DB_WAREHOUSE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    validation-query: SELECT 1
+    remove-abandoned: true
+    log-abandoned: true
+    default-auto-commit: false
+    test-on-borrow: true
+
+trainDetailService:
+  url: TBD
+
+sleepConstant: 1000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
