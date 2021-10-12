@@ -1,5 +1,10 @@
 ## Reservation application
 
+### Git link
+```shell
+git clone git@github.com:StratoxEnterprises/tyden-inovaci-workshop.git
+```
+
 ### Deployment model
 
 ![Image](deployment_model.png)
