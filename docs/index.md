@@ -11,17 +11,17 @@ git clone git@github.com:StratoxEnterprises/tyden-inovaci-workshop.git
 
 **A**:
   - DEV environment
-    - Kafka: TBD
-    - Topic: TBD
+    - Kafka: **reservationdevkafka**
+    - Topic: **new-reservation**
   - PROD environment
-    - Kafka: TBD
-    - Topic: TBD
+    - Kafka: **reservationprodkafka**
+    - Topic: **new-reservation**
 
 **B**:
   - DEV environment
-    - Url: TBD
+    - Url: **https://train-details-reservation-app-dev.trials.codenow.com**
   - PROD environment
-    - Url: TBD
+    - Url: **https://train-details-reservation-app-prod.trials.codenow.com**
 
 ### Code snippets
 
