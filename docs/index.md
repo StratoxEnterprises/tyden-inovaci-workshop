@@ -385,3 +385,60 @@ public class reservationWarehouseServiceImpl implements ReservationWarehouseServ
 }
 ```
 
+#### Configuration
+
+##### application.yaml
+
+```yaml
+spring:
+  ...
+  kafka:
+    reservation:
+      bootstrap-servers: ${KAFKA_RESERVATION_BOOTSTRAP_SERVERS}
+      consumer:
+        group-id: omi-id
+      topic:
+        new-reservation: new-reservation
+  datasource:
+    url: ${DB_WAREHOUSE_JDBC_URL}
+    username: ${DB_WAREHOUSE_USERNAME}
+    password: ${DB_WAREHOUSE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    validation-query: SELECT 1
+    remove-abandoned: true
+    log-abandoned: true
+    default-auto-commit: false
+    test-on-borrow: true
+
+trainDetailService:
+  url: TBD
+
+sleepConstant: 1000
+```
+
+##### flyway.conf
+
+```
+flyway.url=${DB_WAREHOUSE_JDBC_URL}
+flyway.user=${DB_WAREHOUSE_USERNAME}
+flyway.password=${DB_WAREHOUSE_PASSWORD}
+```
+
+##### Flyway migration script
+
+```sql
+CREATE TABLE reservation_warehouse
+(
+    id            VARCHAR PRIMARY KEY,
+    first_name    VARCHAR,
+    last_name     VARCHAR,
+    email         VARCHAR,
+    seat_id       VARCHAR,
+    train_id      VARCHAR,
+    train_name    VARCHAR,
+    train_seats   INTEGER,
+    date          DATE
+);
+
+CREATE SEQUENCE reservation_warehouse_id_sequence START 1;
+```
