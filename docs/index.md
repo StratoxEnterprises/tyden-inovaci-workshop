@@ -179,7 +179,7 @@ public class TrainDetail {
 
 ##### NewReservationDTO
 
-```yaml
+```java
 public class NewReservationDTO {
 
     private String firstName;
