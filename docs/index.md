@@ -2,7 +2,7 @@
 
 ### Git link
 ```shell
-git clone git@github.com:StratoxEnterprises/tyden-inovaci-workshop.git
+git clone https://github.com/StratoxEnterprises/tyden-inovaci-workshop.git
 ```
 
 ### Deployment model
@@ -28,9 +28,9 @@ git clone git@github.com:StratoxEnterprises/tyden-inovaci-workshop.git
 #### Kafka image
 
 ```
-git clone https://github.com/StratoxEnterprises/oxus-docker-kafka-dev
+git clone https://github.com/StratoxEnterprises/oxus-docker-kafka-dev.git
 docker-compose up -d
-docker exec -it oxus-docker-kafka-dev_kafka_1 /opt/bitnami/kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic new-reservation
+docker exec -it oxus-docker-kafka-dev_kafka_1 /opt/bitnami/kafka/bin/kafka-console-producer.sh --broker-list localhost:9092 --topic new-reservation
 ```
 
 Message:
