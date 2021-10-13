@@ -35,9 +35,10 @@ public class reservationWarehouseServiceImpl implements ReservationWarehouseServ
 
     @Override
     public void processReservation(NewReservationDTO newReservationDTO) throws InterruptedException {
-
+        log.info("Call train detail service ...");
         TrainDetail trainDetail = restTemplate.getForObject(trainDetailServiceUrl + "/train/{trainId}", TrainDetail.class, newReservationDTO.getTrainId());
 
+        log.info("Store warehouse data ...");
         reservationWarehouseRepository.save(
                 new ReservationWarehouseEntity(
                         newReservationDTO.getFirstName(),
@@ -49,6 +50,8 @@ public class reservationWarehouseServiceImpl implements ReservationWarehouseServ
                         trainDetail.getSeats(),
                         newReservationDTO.getDate()
                 ));
+
+        log.info("Data was processed.");
 
         Thread.sleep(sleepConstatnt);
 
